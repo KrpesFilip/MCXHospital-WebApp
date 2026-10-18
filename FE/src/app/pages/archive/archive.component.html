@@ -1,0 +1,155 @@
+<div class="page">
+  <app-header portalType="Hospital Portal" userRole="HOSPITAL"></app-header>
+
+  <!-- ALL CLOSED CASES -->
+  <div class="archive-container">
+    <div class="archive-content">
+      <div class="heading_flex">
+        <div class="overview__head">
+          <h2 class="overview__title">Archived Cases</h2>
+          <p class="overview__subtitle">All completed and closed cases</p>
+        </div>
+
+        <button type="button" class="btn" (click)="goBack()">Back to Dashboard</button>
+
+        <app-custom-sort-dropdown
+          [sortOptions]="sortOptions"
+          (sortChange)="onSortChange($event)"
+          class="sort-dropdown"
+        ></app-custom-sort-dropdown>
+      </div>
+
+
+      <div class="archive-cases">
+        @if (archivedCases.length === 0) {
+          <div class="no-cases">
+            <p>No archived cases yet.</p>
+          </div>
+        }
+
+        @for (c of sortedCases; track c.id) {
+          <button
+            type="button"
+            (click)="viewCase(c)"
+            [class]="'case-card--archived priority-' + (c.isSos ? 'sos' : c.priority.toLowerCase())"
+          >
+            <div class="case-card__header">
+              <div class="case-card__info">
+                <div class="case-card__name">{{ c.patientName }}</div>
+                <div class="case-card__meta">{{ currentYear - c.birthYear }} years old • #{{ c.id }}</div>
+              </div>
+              <span [class]="'priority-badge priority-' + (c.isSos ? 'sos' : c.priority.toLowerCase())">
+                {{ c.priority }}
+              </span>
+            </div>
+
+            <div class="case-card__body">
+              <div class="case-time">
+                <span class="time-icon">🕐</span>
+                <span class="time-value">{{ c.createdAt | date:'M/d/yy, h:mm a' }}</span>
+              </div>
+
+              <div class="case-description">
+                {{ c.description }}
+              </div>
+            </div>
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<app-overlay-modal *ngIf="selectedCase" (close)="closeCase()">
+  <div class="case-modal">
+    <button type="button" class="close-x-btn" (click)="closeCase()">×</button>
+
+    <div class="modal-header-section">
+      <div class="header-left">
+        <h2 class="modal-title">{{ selectedCase.patientName }}</h2>
+        <span class="badge-priority" [class]="'priority-' + (selectedCase.isSos ? 'sos' : selectedCase.priority.toLowerCase())">
+          {{ selectedCase.isSos ? 'SOS' : selectedCase.priority }}
+        </span>
+        <div class="header-meta">
+          <span class="ems-id">EMS-{{ selectedCase.createdById }}</span>
+          <p class="case-date">{{ selectedCase.createdAt | date:'M/d/yy, h:mm a' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-body">
+      <div class="top-section">
+        <div class="section">
+          <div class="section-header">
+            <h3>Patient Information</h3>
+          </div>
+          <div class="info-box">
+            <div class="info-grid">
+              <div class="info-item">
+                <label>Full Name</label>
+                <span>{{ selectedCase.patientName }}</span>
+              </div>
+              <div class="info-item">
+                <label>Age</label>
+                <span>{{ currentYear - selectedCase.birthYear }} years</span>
+              </div>
+              <div class="info-item">
+                <label>Sex</label>
+                <span>{{ selectedCase.sex === 'M' ? 'Male' : 'Female' }}</span>
+              </div>
+              <div class="info-item">
+                <label>Pickup location</label>
+                <span>{{ formatCoordinate(selectedCase.latitude) }}, {{ formatCoordinate(selectedCase.longitude) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header">
+            <h3>Condition Description</h3>
+          </div>
+          <p class="description-text">{{ selectedCase.description }}</p>
+        </div>
+      </div>
+
+      <div class="vitals-section" *ngIf="selectedCase.bpm || selectedCase.systolicPressure || selectedCase.resRate || selectedCase.saturation || selectedCase.temperature">
+        <div class="section-header">
+          <h3>Vital Signs</h3>
+        </div>
+        <div class="vitals-grid">
+          <div class="vital-item vital-heart" *ngIf="selectedCase.bpm">
+            <label><span class="vital-icon">❤️</span> Heart Rate</label>
+            <div class="vital-value">{{ selectedCase.bpm }}</div>
+            <div class="vital-unit">bpm</div>
+          </div>
+          <div class="vital-item vital-bp" *ngIf="selectedCase.systolicPressure && selectedCase.diastolicPressure">
+            <label>Blood Pressure</label>
+            <div class="vital-value">{{ selectedCase.systolicPressure }}/{{ selectedCase.diastolicPressure }}</div>
+            <div class="vital-unit">mmHg</div>
+          </div>
+          <div class="vital-item vital-resp" *ngIf="selectedCase.resRate">
+            <label>Respiratory</label>
+            <div class="vital-value">{{ selectedCase.resRate }}</div>
+            <div class="vital-unit">breaths/min</div>
+          </div>
+          <div class="vital-item vital-spo2" *ngIf="selectedCase.saturation">
+            <label>O₂ Saturation</label>
+            <div class="vital-value">{{ selectedCase.saturation }}</div>
+            <div class="vital-unit">%</div>
+          </div>
+          <div class="vital-item vital-temp" *ngIf="selectedCase.temperature">
+            <label><span class="vital-icon">🌡️</span> Temperature</label>
+            <div class="vital-value">{{ selectedCase.temperature }}</div>
+            <div class="vital-unit">°C</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="close-btn" (click)="closeCase()">Close</button>
+    </div>
+  </div>
+</app-overlay-modal>

@@ -1,0 +1,7 @@
+*
+!target/*-runner
+!target/*-runner.jar
+!target/lib/*
+!target/quarkus-app/*
+!src/main/resources/privateKey.pem
+!src/main/resources/publicKey.pem

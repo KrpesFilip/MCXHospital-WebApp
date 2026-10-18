@@ -1,0 +1,57 @@
+<aside class="sidebar">
+  @if (!activeCase) {
+    <div class="action-stack">
+      <button class="btn btn-primary" (click)="onNewCaseClick()">+ New Case</button>
+      <button class="btn btn-emergency" (click)="onSosClick()">⚠ SOS Emergency</button>    
+    </div>
+    <div class="status-info">
+      <p>No active cases</p>
+      <span>Create a new case to get started</span>
+    </div>
+  } @else {
+    <div class="case-card" [class.sos-case]="activeCase.isSos">
+      <div class="case-card-header">
+        <h3>{{ activeCase.patientName }}</h3>
+        <div class="status-indicator" [class]="getStatusClass()"></div>
+      </div>
+      <p class="case-age">{{ activeCase.age }} years old</p>
+      
+      <div class="patient-info-section" [class.sos-case]="activeCase.isSos">
+        <div class="info-label">PATIENT INFO</div>
+        <div class="info-row">
+          <span class="info-key">Sex:</span>
+          <span class="info-value">{{ activeCase.sex === 'M' ? 'Male' : 'Female' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Birth Year:</span>
+          <span class="info-value">{{ activeCase.birthYear }}</span>
+        </div>
+      </div>
+      
+      <div class="case-meta">
+        <div class="meta-row">
+          <span class="meta-label">Priority:</span>
+          <span class="meta-value priority-badge" [class]="getPriorityClass()">
+            {{ activeCase.priority }}
+          </span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">Status:</span>
+          <span class="meta-value status-badge" [class]="getStatusBadgeClass()">
+            {{ getStatus() }}
+          </span>
+        </div>
+      </div>
+
+      @if (activeCase.eta) {
+        <div class="eta-badge">
+          <span>ETA: {{ activeCase.eta }} minutes</span>
+        </div>
+      }
+
+      <div class="case-timestamp" [class.sos-case]="activeCase.isSos">
+        Created: {{ activeCase.createdAt | date:'MMM d, HH:mm' }}
+      </div>
+    </div>
+  }
+</aside>

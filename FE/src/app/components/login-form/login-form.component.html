@@ -1,0 +1,25 @@
+<div class="login-wrapper">
+    <div class="login-card">
+
+        <h1>MCX Hospital</h1>
+        <p class="subtitle">Sign in to your account</p>
+
+        <form (ngSubmit)="submit()">
+            <label>Username</label>
+            <input type="text"  [(ngModel)]="username" name="username" />
+
+            <label>Password</label>
+            <div class="password-input-wrapper">
+                <input [type]="showPassword ? 'text' : 'password'"  [(ngModel)]="password" name="password" />
+                <button type="button" class="toggle-password" (click)="showPassword = !showPassword">
+                    {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+                </button>
+            </div>
+
+            <button type="submit" [disabled]="loading">{{ loading ? 'Signing in...' : 'Sign In' }}</button>
+        </form>
+
+        <p class="error" *ngIf="error">{{ error }}</p>
+
+    </div>
+</div>

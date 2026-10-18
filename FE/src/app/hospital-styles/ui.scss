@@ -1,0 +1,110 @@
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.muted {
+  color: var(--muted-foreground);
+}
+
+.small {
+  font-size: 0.85rem;
+}
+
+/* card */
+.card {
+  background: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.card__header {
+  padding: 0.77rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.card__title {
+  font-weight: var(--font-weight-medium);
+}
+
+.card__subtitle {
+  margin-top: 0.17rem;
+  font-size: 0.62rem;
+}
+
+.card__body {
+  padding: 0.8rem;
+}
+
+/* buttons */
+.btn {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--primary );
+  background: var(--primary);
+  color: var(--primary-foreground);
+  padding: 0.48rem 0.7rem;
+  cursor: pointer;
+  transition: background 150ms ease, opacity 150ms ease, transform 80ms ease, box-shadow 250ms ease-out;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+}
+
+.btn:hover {
+  box-shadow: 0 0 7px rgba(32, 32, 32, 0.905);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn--primary {
+  border-color: transparent;
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+
+/* inputs */
+.input {
+  width: 100%;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--input-background);
+  padding: 0.52rem 0.64rem;
+}
+
+.input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.15rem 0.44rem;
+  font-size: 0.55rem;
+  border: 1px solid var(--border);
+  background: var(--muted);
+  color: var(--foreground);
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.chip--sent {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+}
+
+.chip--ack {
+  background: rgba(22, 163, 74, 0.16);
+  border-color: rgba(22, 163, 74, 0.26);
+  color: var(--foreground);
+}
+
+.chip--closed {
+  background: var(--muted);
+  color: var(--muted-foreground);
+}

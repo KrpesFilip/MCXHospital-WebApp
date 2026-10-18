@@ -1,0 +1,80 @@
+.universal-header {
+  height: 58px;
+  background: rgb(238, 239, 242);
+  
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #d8dadf;
+  
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2.5rem;
+  
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &__title {
+    font-size: 1.45rem;
+    font-weight: 600;
+    letter-spacing: 0.1px;
+    margin-left: 2rem;
+    margin-right: 3.5rem;
+    color: #000000;
+  }
+  
+  &__portal {
+    font-size: 0.9rem;
+    color: #212121;
+    font-weight: 500;
+  }
+}
+
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  
+  .user-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #212121;
+
+    margin-right: 2rem;
+  }
+}
+
+.btn-logout {
+  padding: 0.35rem 0.85rem;
+  background: rgb(246, 246, 246);
+  border: 2px solid #212121;
+  border-radius: 0.375rem;
+  
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #212121;
+  
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgb(205, 206, 210);
+    border-color: #484848;
+  }
+  
+  &:active {
+    background: #f3f4f6;
+    transform: scale(0.98);
+  }
+}

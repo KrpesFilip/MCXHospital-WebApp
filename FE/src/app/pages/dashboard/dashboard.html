@@ -1,0 +1,176 @@
+<app-header portalType="EMS Portal" userRole="VEHICLE"></app-header>
+
+<div class="layout-wrapper">
+  <app-sidebar 
+    [activeCase]="activeCase"
+    (newCaseClicked)="openCaseModal()"
+    (sosClicked)="openSosModal()"
+  ></app-sidebar>
+
+  <main class="content-view">
+    @if (!activeCase) {
+      <div class="empty-state">
+        <div class="empty-card">
+          <h2>No Case Selected</h2>
+          <p>Create a new case or SOS emergency to get started</p>
+        </div>
+      </div>
+    } @else {
+      <div class="case-detail" [class.sos-detail]="activeCase.isSos">
+        <div class="case-detail-header">
+          <div class="header-left">
+            <h1>{{ activeCase.patientName }}</h1>
+            <div class="header-badges">
+              <span class="badge" [class]="'badge-' + activeCase.priority.toLowerCase()">
+                {{ activeCase.priority }} Priority
+              </span>
+            </div>
+          </div>
+          <div class="header-actions">
+            <button class="btn-update" (click)="updateCase()">
+              Update
+            </button>
+            <button class="btn-end-case" (click)="endCase()">End Case</button>
+          </div>
+        </div>
+
+        <div class="info-card-combined">
+          <div class="symptoms-section">
+            <div class="info-label">SYMPTOMS / DESCRIPTION</div>
+            <div class="info-content">
+              <p>{{ activeCase.description }}</p>
+            </div>
+          </div>
+          
+          <div class="vitals-section">
+            <div class="info-label">VITAL SIGNS</div>
+            
+            @if (!activeCase.isSos) {
+              <div class="vitals-row">
+                <div class="vital-item">
+                  <span class="vital-emoji">❤️</span>
+                  <div class="vital-info">
+                    <div class="vital-label">Heart Rate</div>
+                    <div class="vital-value">{{ activeCase.bpm }} bpm</div>
+                  </div>
+                </div>
+                
+                <div class="vital-item">
+                  <span class="vital-emoji">🩺</span>
+                  <div class="vital-info">
+                    <div class="vital-label">Blood Pressure</div>
+                    <div class="vital-value">{{ activeCase.systolicPressure }}/{{ activeCase.diastolicPressure }}</div>
+                  </div>
+                </div>
+                
+                <div class="vital-item">
+                  <span class="vital-emoji">🫁</span>
+                  <div class="vital-info">
+                    <div class="vital-label">Resp. Rate</div>
+                    <div class="vital-value">{{ activeCase.resRate }} br/min</div>
+                  </div>
+                </div>
+                
+                <div class="vital-item">
+                  <span class="vital-emoji">💨</span>
+                  <div class="vital-info">
+                    <div class="vital-label">O2 Saturation</div>
+                    <div class="vital-value">{{ activeCase.saturation }}%</div>
+                  </div>
+                </div>
+                
+                <div class="vital-item">
+                  <span class="vital-emoji">🌡️</span>
+                  <div class="vital-info">
+                    <div class="vital-label">Temperature</div>
+                    <div class="vital-value">{{ activeCase.temperature }}°C</div>
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <div class="vitals-na">
+                <p>⚠️ Vital signs not available for SOS emergency cases</p>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="chat">
+          <div class="chat__header">
+            <span>Case Communication</span>
+            <span class="chat__status" [ngClass]="isAcknowledged() ? 'chat__status--active' : 'chat__status--sent'">
+              {{ isAcknowledged() ? '● Active' : 'Sent' }}
+            </span>
+          </div>
+
+          <div #chatScroll class="chat__messages">
+            <div *ngIf="messages.length === 0" class="no-messages">
+              <p>No messages yet. Start the conversation!</p>
+            </div>
+            
+            <div 
+              *ngFor="let msg of messages" 
+              class="msg"
+              [ngClass]="isSelfMessage(msg) ? 'msg--self' : 'msg--other'"
+            >
+              <div 
+                class="bubble"
+                [ngClass]="isSelfMessage(msg) ? 'bubble--self' : 'bubble--other'"
+              >
+                <div class="bubble__meta">
+                  {{ getSenderName(msg) }} • {{ msg.createdAt | date: 'HH:mm' }}
+                </div>
+                <div class="bubble__text">{{ msg.content }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat__composer">
+            <input
+              [(ngModel)]="messageText"
+              (keydown.enter)="$event.preventDefault(); onSend()"
+              type="text"
+              placeholder="Type a message..."
+              class="input"
+              [disabled]="!isAcknowledged()"
+            />
+            <button
+              type="button"
+              (click)="onSend()"
+              class="btn btn--ghost"
+              [disabled]="!messageText.trim() || !isAcknowledged()"
+            >
+              Send
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </main>
+</div>
+
+<app-case-modal
+  [isOpen]="isModalOpen"
+  [editMode]="isEditMode"
+  [existingCase]="activeCase"
+  (close)="closeCaseModal()"
+  (caseCreated)="onCaseCreated($event)"
+  (caseUpdated)="onCaseUpdated($event)"
+></app-case-modal>
+
+<app-sos-modal
+  [isOpen]="isSosModalOpen"
+  [editMode]="isEditMode"
+  [existingCase]="activeCase"
+  (close)="closeSosModal()"
+  (caseCreated)="onCaseCreated($event)"
+  (caseUpdated)="onCaseUpdated($event)"
+></app-sos-modal>
+
+<app-end-case-modal
+  [isOpen]="isEndCaseModalOpen"
+  [caseName]="activeCase?.patientName || ''"
+  [isSos]="activeCase?.isSos || false"
+  (confirm)="confirmEndCase()"
+  (cancel)="cancelEndCase()"
+></app-end-case-modal>

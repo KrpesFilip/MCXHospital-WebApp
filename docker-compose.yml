@@ -1,0 +1,30 @@
+services:
+  backend:
+    build:
+      context: ./BE
+      dockerfile: src/main/docker/Dockerfile.jvm
+    container_name: mcx-hospital-backend
+    restart: unless-stopped
+    env_file:
+      - ./BE/.env
+    ports:
+      - "8080:8080"
+    networks:
+      - mcx-network
+
+  frontend:
+    build:
+      context: ./FE
+      dockerfile: Dockerfile
+    container_name: mcx-hospital-frontend
+    restart: unless-stopped
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - mcx-network
+
+networks:
+  mcx-network:
+    driver: bridge

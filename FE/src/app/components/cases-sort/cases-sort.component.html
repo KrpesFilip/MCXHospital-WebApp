@@ -1,0 +1,42 @@
+<div class="custom-dropdown">
+  <button 
+    type="button" 
+    class="dropdown-trigger" 
+    (click)="toggleDropdown()"
+    [class.dropdown-trigger--open]="isOpen"
+  >
+    <span class="dropdown-trigger__text">{{ getSelectedLabel() }}</span>
+    <svg 
+      class="dropdown-trigger__icon" 
+      [class.dropdown-trigger__icon--rotated]="isOpen"
+      width="12" 
+      height="8" 
+      viewBox="0 0 12 8" 
+      fill="none"
+    >
+      <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </button>
+
+  <div class="dropdown-menu" [class.dropdown-menu--open]="isOpen">
+    <button
+      *ngFor="let option of sortOptions"
+      type="button"
+      class="dropdown-item"
+      [class.dropdown-item--selected]="option.value === selectedOption"
+      (click)="selectOption(option.value)"
+    >
+      <span>{{ option.label }}</span>
+      <svg 
+        *ngIf="option.value === selectedOption"
+        class="dropdown-item__check"
+        width="16" 
+        height="16" 
+        viewBox="0 0 16 16" 
+        fill="none"
+      >
+        <path d="M13 4L6 11L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+</div>

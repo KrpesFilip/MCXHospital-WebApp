@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: mcxhospital
+      POSTGRES_USER: postgres
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8081:8080"

@@ -1,0 +1,137 @@
+<main class="overview">
+  <!-- Left: Cases -->
+  <section class="overview__left">
+    <div class="heading_flex">
+      <div class="overview__head">
+        <div>
+          <div class="overview__title">Active Cases</div>
+          <div class="overview__subtitle">Click on a case to open details and chat.</div>
+        </div>
+      </div>
+
+      <button type="button" class="btn" (click)="navigateToArchive()">Archive</button>
+
+      <app-custom-sort-dropdown
+        [sortOptions]="sortOptions"
+        [selectedOption]="sortOption"
+        (sortChange)="onSortChange($event)"
+      ></app-custom-sort-dropdown>
+    </div>
+
+
+    <!-- Loading & Error States -->
+    @if (loading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading cases...</p>
+      </div>
+    }
+
+    @if (error()) {
+      <div class="error-state">
+        <p>⚠ {{ error() }}</p>
+      </div>
+    }
+
+    <!-- Cases List -->
+    @if (!loading()) {
+      <div class="overview__cases">
+        @for (c of sortedCases; track c.id) {
+          <button
+            type="button"
+            (click)="selectCaseHandler(c)"
+            class="case-card"
+            [ngClass]="[
+              isSos(c) == true ? 'case-card--sos' :
+              c.priority === 'HIGH' ? 'case-card--high' :
+              c.priority === 'MEDIUM' ? 'case-card--medium' : 'case-card--low'
+            ]"
+          >
+            <div class="case-card__top">
+              <div>
+                <div class="case-card__name">{{ c.patientName }}</div>
+                <div class="case-card__meta">{{ 2026 - c.birthYear }} years old • #{{ c.id }}</div>
+              </div>
+              <span class="priority-dot" [ngClass]="[
+                isSos(c) == true ? 'dot-sos' :
+                c.priority === 'HIGH' ? 'dot-high' :
+                c.priority === 'MEDIUM' ? 'dot-medium' : 'dot-low'
+              ]"></span>
+            </div>
+
+            <div class="case-card__grid">
+              <div class="case-mini">
+                <div class="case-mini__label">Priority</div>
+                <div class="case-mini__value case-mini__value--strong">{{ c.priority }}</div>
+              </div>
+              <div class="case-mini">
+                <div class="case-mini__label">Status</div>
+                <div class="case-mini__value">
+                  <span
+                    class="chip"
+                    [ngClass]="[
+                      c.acknowledged ? 'chip--ack' :
+                      c.isActive ? 'chip--sent' : 'chip--closed'
+                    ]"
+                  >
+                    {{ c.acknowledged ? 'Acknowledged' : c.isActive ? 'Sent' : 'Closed' }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="case-eta case-eta--compact">
+                <div>ETA</div>
+                <div>{{ c.etaMinutes || '-' }} min</div>
+              </div>
+
+              <div class="case-summary">
+                {{ c.summary }}
+              </div>
+            </div>
+
+            <div class="case-actions">
+              @if (c.isActive && !c.acknowledged) {
+                <button 
+                  type="button"
+                  (click)="acknowledgeCaseHandler(c.id, $event)"
+                  class="btn-acknowledge"
+                >
+                  ✓ Acknowledge case
+                </button>
+              }
+            </div>
+          </button>
+        }
+
+        @if (sortedCases.length === 0) {
+          <div class="no-cases">
+            <p>No active cases</p>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <!-- Right: Map -->
+  <aside class="overview__right">
+    <div class="card map-card">
+      <div class="card__header">
+        <div class="card__title">Live Map</div>
+        <div class="muted card__subtitle">Osijek, Croatia</div>
+        @if (selectedCaseEta) {
+          <div class="map-info">
+            <div class="eta-display">
+              <span class="eta-label">ETA:</span>
+              <span class="eta-value">{{ selectedCaseEta.minutes }} min</span>
+              <span class="distance-value">({{ selectedCaseEta.km }} km)</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="map-card__body">
+        <div id="map" class="leaflet-map"></div>
+      </div>
+    </div>
+  </aside>
+</main>

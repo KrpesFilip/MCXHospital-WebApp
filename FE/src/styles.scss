@@ -1,0 +1,17 @@
+@import './app/hospital-styles/themes.scss';
+@import './app/hospital-styles/base.scss';
+@import './app/hospital-styles/ui.scss';
+@import './app/hospital-styles/dashboard.scss';
+@import './app/hospital-styles/case_detail.scss';
+
+:root {
+  --border-color: #e9ecef;
+  --radius: 12px;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-gray);
+  overflow: hidden;
+}

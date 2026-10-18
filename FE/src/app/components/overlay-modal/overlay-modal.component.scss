@@ -1,0 +1,555 @@
+/* OVERLAY BASE STYLES */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+}
+
+.modal {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    max-height: 90vh;
+    overflow-y: auto;
+    width: 95%;
+    max-width: 900px;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.case-wrapper {
+    background: #fff;
+    border-radius: 18px;
+    padding: 32px;
+}
+
+.case-header {
+    margin-bottom: 24px;
+
+    h2 {
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    p {
+        margin-top: 6px;
+        font-size: 14px;
+        color: #6b7280;
+    }
+}
+
+/* TABLE */
+.case-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+
+    th {
+        text-align: left;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 0 10px 16px 0;
+
+        &:nth-child(1) {
+            width: 20%;
+        }
+
+        /* Patient */
+        &:nth-child(2) {
+            width: 8%;
+        }
+
+        /* Age */
+        &:nth-child(3) {
+            width: 15%;
+        }
+
+        /* Status */
+        &:nth-child(4) {
+            width: 12%;
+        }
+
+        /* EMS */
+        &:nth-child(5) {
+            width: 18%;
+        }
+
+        /* Created */
+        &:nth-child(6) {
+            width: 12%;
+        }
+
+        /* Priority */
+        &:nth-child(7) {
+            width: 15%;
+        }
+
+        /* Actions */
+    }
+
+    td {
+        padding: 20px 10px 20px 0;
+        border-top: 1px solid #e5e7eb;
+        font-size: 14px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        &:nth-child(1) {
+            width: 20%;
+        }
+
+        /* Patient */
+        &:nth-child(2) {
+            width: 8%;
+        }
+
+        /* Age */
+        &:nth-child(3) {
+            width: 15%;
+        }
+
+        /* Status */
+        &:nth-child(4) {
+            width: 12%;
+        }
+
+        /* EMS */
+        &:nth-child(5) {
+            width: 18%;
+        }
+
+        /* Created */
+        &:nth-child(6) {
+            width: 12%;
+        }
+
+        /* Priority */
+        &:nth-child(7) {
+            width: 15%;
+        }
+
+        /* Actions */
+    }
+
+    .actions {
+        width: 15%;
+        text-align: center;
+    }
+}
+
+/* BADGES */
+.badge {
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.sent {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.acknowledged {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+/* PRIORITY WEIGHTS */
+.priority-high {
+    color: #000;
+    font-weight: 800;
+}
+
+.priority-medium {
+    color: #000;
+    font-weight: 400;
+}
+
+.priority-low {
+    color: #000;
+    font-weight: 100;
+}
+
+/* BUTTONS */
+.btn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.btn.view {
+    border: 1px solid #e5e7eb;
+}
+
+.btn.delete {
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+}
+
+/* MODAL */
+.case-modal {
+    width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 16px;
+    padding: 0;
+}
+
+/* MODAL HEADER */
+.modal-header-section {
+    padding: 32px 40px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.header-left {
+    .modal-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 4px 0;
+    }
+
+    .case-date {
+        font-size: 14px;
+        color: #6b7280;
+        margin: 0;
+    }
+}
+
+.header-badges {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.badge-sos {
+    background: #dc2626;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+    animation: pulse-sos 2s ease-in-out infinite;
+}
+
+@keyframes pulse-sos {
+
+    0%,
+    100% {
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 4px 20px rgba(220, 38, 38, 0.7);
+        transform: scale(1.02);
+    }
+}
+
+.badge-priority {
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    background: #f3f4f6;
+    color: #111827;
+    border: 1px solid #e5e7eb;
+}
+
+/* SECTIONS */
+.section {
+    padding: 28px 40px;
+    border-bottom: 1px solid #f3f4f6;
+
+    &:last-of-type {
+        border-bottom: none;
+    }
+}
+
+.section-header {
+    margin-bottom: 20px;
+
+    h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #111827;
+        margin: 0;
+    }
+}
+
+/* INFO GRID */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px 32px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    label {
+        font-size: 12px;
+        font-weight: 500;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    span {
+        font-size: 15px;
+        font-weight: 500;
+        color: #111827;
+    }
+}
+
+/* DESCRIPTION */
+.description-text {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #374151;
+    margin: 0;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 8px;
+    border-left: 3px solid #3b82f6;
+}
+
+/* VITALS GRID */
+.vitals-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.vital-item {
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    label {
+        font-size: 12px;
+        font-weight: 500;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    span {
+        font-size: 18px;
+        font-weight: 600;
+        color: #111827;
+
+        small {
+            font-size: 12px;
+            font-weight: 500;
+            color: #9ca3af;
+            margin-left: 4px;
+        }
+    }
+}
+
+/* STATUS BADGE IN INFO */
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+
+    &.sent {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+
+    &.acknowledged {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+}
+
+/* MODAL ACTION BUTTONS */
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding: 24px 40px;
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+}
+
+.close-btn {
+    padding: 10px 24px;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    color: #374151;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.2s;
+    cursor: pointer;
+
+    &:hover {
+        background: #f9fafb;
+        border-color: #9ca3af;
+    }
+}
+
+.delete-btn {
+    padding: 10px 24px;
+    background: #fff;
+    border: 1px solid #dc2626;
+    color: #dc2626;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.2s;
+    cursor: pointer;
+
+    &:hover {
+        background: #dc2626;
+        color: #fff;
+    }
+}
+
+/* DELETE CONFIRMATION MODAL */
+.delete-confirmation-modal {
+    background: #fff;
+    border-radius: 20px;
+    padding: 0;
+    width: 420px;
+    max-width: 90vw;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+}
+
+/* Override overlay modal width for delete confirmation */
+::ng-deep app-overlay-modal .overlay {
+    .modal:has(.delete-confirmation-modal) {
+        width: auto !important;
+        max-width: none !important;
+    }
+}
+
+.delete-confirmation-modal .modal-header {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    padding: 28px 24px;
+    text-align: center;
+    position: relative;
+
+    &::before {
+        content: "⚠";
+        font-size: 44px;
+        display: block;
+        margin-bottom: 8px;
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    h2 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #991b1b;
+        margin: 0;
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: scale(1.05);
+    }
+}
+
+.delete-confirmation-modal .modal-body {
+    padding: 24px;
+    text-align: center;
+
+    p {
+        font-size: 15px;
+        color: #374151;
+        line-height: 1.6;
+        margin: 0;
+        font-weight: 500;
+    }
+}
+
+.delete-confirmation-modal .modal-footer {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px 24px;
+    justify-content: center;
+
+    .btn {
+        flex: 1;
+        padding: 11px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+
+        &.view {
+            background: #f3f4f6;
+            border: 2px solid #d1d5db;
+            color: #374151;
+
+            &:hover {
+                background: #e5e7eb;
+                border-color: #9ca3af;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+        }
+
+        &.delete {
+            background: #dc2626;
+            border: 2px solid #dc2626;
+            color: #fff;
+
+            &:hover {
+                background: #b91c1c;
+                border-color: #b91c1c;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.4);
+            }
+        }
+    }
+}

@@ -1,0 +1,201 @@
+<div class="case-wrapper">
+
+    <div class="case-header">
+        <h2>All Cases ({{ filteredCases.length }})</h2>
+        <p>Monitor and manage all emergency cases</p>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters-container">
+        <div class="search-input">
+            <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()"
+                placeholder="Search by patient name..." />
+        </div>
+        <div class="sos-filter">
+            <select [(ngModel)]="sosFilter" (ngModelChange)="onSosFilterChange()">
+                <option value="ALL">All Cases</option>
+                <option value="SOS">SOS Cases</option>
+                <option value="NON_SOS">Non-SOS Cases</option>
+            </select>
+        </div>
+    </div>
+
+    <table class="case-table">
+        <thead>
+            <tr>
+                <th>Patient</th>
+                <th>Age</th>
+                <th>Status</th>
+                <th>EMS</th>
+                <th>Created</th>
+                <th>Priority</th>
+                <th class="actions">Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr *ngFor="let c of filteredCases">
+                <td>{{ c.patientName }}</td>
+                <td>{{ currentYear - c.birthYear }}</td>
+
+                <td>
+                    <span class="badge" [ngClass]="!c.isActive ? 'closed' : (c.acknowledged ? 'acknowledged' : 'sent')">
+                        {{ !c.isActive ? 'CLOSED' : (c.acknowledged ? 'ACKNOWLEDGED' : 'SENT') }}
+                    </span>
+                </td>
+
+                <td>{{ c.createdById }}</td>
+                <td>{{ c.createdAt | date:'short' }}</td>
+
+                <td>
+                    <span [ngClass]="getPriorityClass(c.priority)">
+                        {{ c.priority }}
+                    </span>
+                </td>
+
+                <td class="actions">
+                    <button class="btn view" (click)="openCase(c)">View</button>
+                    <!--<button class="btn delete" (click)="deleteCase(c)">Delete</button>-->
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
+<!-- CASE DETAILS MODAL -->
+<app-overlay-modal *ngIf="selectedCase" (close)="closeCase()">
+
+    <div class="case-modal">
+
+        <!-- HEADER -->
+        <div class="modal-header-section">
+            <div class="header-left">
+                <h2 class="modal-title">Case #{{ selectedCase.id }}</h2>
+                <p class="case-date">{{ selectedCase.createdAt | date:'medium' }}</p>
+            </div>
+            <div class="header-badges">
+                <span *ngIf="selectedCase.isSos" class="badge-sos">🚨 SOS EMERGENCY</span>
+                <span class="badge-priority" [ngClass]="getPriorityClass(selectedCase.priority)">Priority: {{
+                    selectedCase.priority }}</span>
+            </div>
+        </div>
+
+        <!-- PATIENT INFO -->
+        <section class="section">
+            <div class="section-header">
+                <h3>Patient Information</h3>
+            </div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Full Name</label>
+                    <span>{{ selectedCase.patientName }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Age</label>
+                    <span>{{ currentYear - selectedCase.birthYear }} years</span>
+                </div>
+                <div class="info-item">
+                    <label>Sex</label>
+                    <span>{{ selectedCase.sex === 'M' ? 'Male' : 'Female' }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Location</label>
+                    <span>{{ selectedCase.latitude }}, {{ selectedCase.longitude }}</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONDITION -->
+        <section class="section">
+            <div class="section-header">
+                <h3>Condition Description</h3>
+            </div>
+            <p class="description-text">{{ selectedCase.description }}</p>
+        </section>
+
+        <!-- VITALS -->
+        <section class="section"
+            *ngIf="selectedCase.bpm || selectedCase.systolicPressure || selectedCase.diastolicPressure || selectedCase.resRate || selectedCase.saturation || selectedCase.temperature">
+            <div class="section-header">
+                <h3>Vital Signs</h3>
+            </div>
+            <div class="vitals-grid">
+                <div class="vital-item">
+                    <label>Heart Rate</label>
+                    <span>{{ selectedCase.bpm }} <small>bpm</small></span>
+                </div>
+                <div class="vital-item">
+                    <label>Blood Pressure</label>
+                    <span>{{ selectedCase.systolicPressure }}/{{ selectedCase.diastolicPressure }}
+                        <small>mmHg</small></span>
+                </div>
+                <div class="vital-item">
+                    <label>Respiratory Rate</label>
+                    <span>{{ selectedCase.resRate }} <small>breaths/min</small></span>
+                </div>
+                <div class="vital-item">
+                    <label>O₂ Saturation</label>
+                    <span>{{ selectedCase.saturation }} <small>%</small></span>
+                </div>
+                <div class="vital-item">
+                    <label>Temperature</label>
+                    <span>{{ selectedCase.temperature }} <small>°C</small></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- PERSONNEL -->
+        <section class="section">
+            <div class="section-header">
+                <h3>Case Details</h3>
+            </div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>EMS Personnel ID</label>
+                    <span>{{ selectedCase.createdById }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Status</label>
+                    <span class="status-badge" [ngClass]="!selectedCase.isActive ? 'closed' : (selectedCase.acknowledged ? 'acknowledged' : 'sent')">
+                        {{ !selectedCase.isActive ? 'Closed' : (selectedCase.acknowledged ? 'Acknowledged' : 'Sent') }}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <label>Active</label>
+                    <span>{{ selectedCase.isActive ? 'Yes' : 'No' }}</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ACTION BUTTONS -->
+        <div class="modal-actions">
+            <button class="btn pdf-btn" (click)="generatePdf(selectedCase)">Generate PDF</button>
+            <button class="btn close-btn" (click)="closeCase()">Close</button>
+            <!--<button class="btn delete-btn" (click)="deleteCase(selectedCase)">Delete</button>-->
+        </div>
+
+    </div>
+</app-overlay-modal>
+
+<!-- DELETE CONFIRMATION MODAL 
+<app-overlay-modal *ngIf="showDeleteConfirmation" (close)="cancelDelete()">
+
+    <div class="delete-confirmation-modal">
+
+        <div class="modal-header">
+            <h2>Confirm Deletion</h2>
+        </div>
+
+        <div class="modal-body">
+            <p>You are about to delete case <strong>{{ caseToDelete.patientName }}</strong>. Are you sure?</p>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn view" (click)="cancelDelete()">Cancel</button>
+            <button class="btn delete" (click)="confirmDelete()">Delete</button>
+        </div>
+
+    </div>
+</app-overlay-modal>
+-->

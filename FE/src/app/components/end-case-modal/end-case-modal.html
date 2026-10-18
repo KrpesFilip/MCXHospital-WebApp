@@ -1,0 +1,24 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="onCancel()">
+  <div class="modal-container end-case-modal" (click)="$event.stopPropagation()">
+    <div class="modal-icon">⚠️</div>
+    
+    <h2>End Case</h2>
+    <p>Are you sure you want to end this case?</p>
+    
+    <div class="case-summary">
+      <strong>{{ caseName }}</strong>
+      <span class="case-type" [class.sos]="isSos">
+        {{ isSos ? '🚨 SOS Emergency' : '📋 Regular Case' }}
+      </span>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="onCancel()">
+        Cancel
+      </button>
+      <button class="btn-confirm" (click)="onConfirm()">
+        End Case
+      </button>
+    </div>
+  </div>
+</div>

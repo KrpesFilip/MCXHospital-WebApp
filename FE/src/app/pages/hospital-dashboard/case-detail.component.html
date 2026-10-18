@@ -1,0 +1,229 @@
+<main class="case-detail">
+  <!-- Left sidebar now shows ALL cases from parent -->
+  <aside class="case-detail__sidebar">
+    <div class="card">
+      <div class="card__header">
+        <!-- English translation -->
+        <div class="details-card__title">Active Cases</div>
+        <div class="muted details-card__subtitle">Select another case to switch.</div>
+
+        <app-custom-sort-dropdown
+          [sortOptions]="sortOptions"
+          [selectedOption]="sortOption"
+          (sortChange)="onSortChange($event)"
+        ></app-custom-sort-dropdown>
+      </div>
+
+      <!-- Display all cases passed from parent -->
+      <div class="sidebar__list">
+        @for (c of sortedCases; track c.id) {
+        <button
+          type="button"
+          (click)="onCaseSelect(c)"
+          class="sidebar-item"
+          [ngClass]="[
+            c.id === selectedCase.id ? 'sidebar-item--active' : '',
+            isSos(c) == true ? 'border--sos' :
+            c.priority === 'HIGH' ? 'border--high' :
+            c.priority === 'MEDIUM' ? 'border--medium' : 'border--low'
+          ]"
+        >
+          <div class="sidebar-item__top">
+            <div>
+              <div class="sidebar-item__name">{{ c.patientName }}</div>
+              <div class="sidebar-item__meta">{{ 2025 - c.birthYear }} years • #{{ c.id }}</div>
+            </div>
+            <span class="priority-dot" [ngClass]="[
+              isSos(c) == true ? 'dot-sos' :
+              c.priority === 'HIGH' ? 'dot-high' :
+              c.priority === 'MEDIUM' ? 'dot-medium' : 'dot-low'
+            ]"></span>
+          </div>
+
+          <div class="sidebar-item__rows">
+            <div class="row">
+              <span class="row__label">Priority</span>
+              <span class="row__value--strong">{{ c.priority }}</span>
+            </div>
+            <div class="row">
+              <span class="row__label">Status</span>
+              <span
+                class="chip chip--small"
+                [ngClass]="[
+                  c.acknowledged ? 'chip--ack' :
+                  c.isActive ? 'chip--sent' : 'chip--closed'
+                ]"
+              >
+                {{ c.acknowledged ? 'Ack' : c.isActive ? 'Sent' : 'Closed' }}
+              </span>
+            </div>
+            <div class="row">
+              <span class="row__label">ETA</span>
+              <span class="row__value--strong">{{ c.etaMinutes || '-' }} min</span>
+            </div>
+          </div>
+        </button>}
+      </div>
+    </div>
+  </aside>
+
+  <!-- Middle: Case details + chat -->
+  <section class="case-detail__middle" *ngIf="selectedCase">
+    <div class="case-detail__middle-inner">
+      <!-- Enhanced details card -->
+      <div class="card"
+        [ngClass]="[
+            isSos(selectedCase) == true ? 'border--sos' :
+            selectedCase.priority === 'HIGH' ? 'border--high' :
+            selectedCase.priority === 'MEDIUM' ? 'border--medium' : 'border--low'
+          ]"
+      >
+        <div class="card__body">
+          <div class="details__top">
+            <div class="details__left">
+              <div class="details__name">{{ selectedCase.patientName }}</div>
+              <div class="muted details__meta">
+                {{ selectedCase.priority }} • {{ getAge() }} years old • Case #{{ selectedCase.id }}
+              </div>
+              <div class="details__summary">
+                {{ selectedCase.summary || selectedCase.description }}
+              </div>
+            </div>
+
+            <div class="details__actions">
+              <!-- Show status OR acknowledge button -->
+              <span
+                *ngIf="isAcknowledged()"
+                class="chip chip--ack chip--large"
+              >
+                ✓ Acknowledged
+              </span>
+              
+              <button
+                *ngIf="isActive() && !isAcknowledged()"
+                type="button"
+                class="btn btn--success"
+                (click)="onAcknowledge()"
+              >
+                ✓ Acknowledge Receipt
+              </button>
+
+              <button type="button" class="btn btn--ghost" (click)="onDeselect()">
+                ← Back to Overview
+              </button>
+            </div>
+          </div>
+
+          <!-- Better vital signs layout -->
+          <div class="details__vitals" *ngIf="getVitalSigns().length > 0">
+            <div class="vitals-grid">
+              <div class="vital-card" *ngFor="let vital of getVitalSigns()">
+                <div class="vital-card__icon">{{ vital.icon }}</div>
+                <div class="vital-card__content">
+                  <div class="vital-card__label">{{ vital.label }}</div>
+                  <div class="vital-card__value">{{ vital.value }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Enhanced info pills -->
+          <div class="details__info">
+            <div class="pill pill--highlight">
+              <span class="pill__label">Case Type:</span>
+              <span class="pill__value">{{ selectedCase.isSos ? '🚨 SOS' : '📋 Regular' }}</span>
+            </div>
+
+            <div class="pill pill--highlight">
+              <span class="pill__label">ETA:</span>
+              <span class="pill__value">{{ selectedCase.etaMinutes ?? '-' }} min</span>
+            </div>
+
+            <div class="pill">
+              <span class="pill__label">Created:</span>
+              <span class="pill__value">{{ selectedCase.createdAt | date: 'dd.MM.yyyy HH:mm' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="chat">
+        <div class="chat__header">
+          <span>Case Communication</span>
+          <span class="chat__status" [ngClass]="isActive() ? 'chat__status--active' : 'chat__status--closed'">
+            {{ isActive() ? '● Active' : '○ Closed' }}
+          </span>
+        </div>
+
+        <div #chatScroll class="chat__messages">
+          <div *ngIf="messages.length === 0" class="no-messages">
+            <p>No messages yet. Start the conversation!</p>
+          </div>
+          <!-- Real messages from WebSocket -->
+          <div 
+            *ngFor="let msg of messages" 
+            class="msg"
+            [ngClass]="isSelfMessage(msg) ? 'msg--self' : 'msg--other'"
+          >
+            <div 
+              class="bubble"
+              [ngClass]="isSelfMessage(msg) ? 'bubble--self' : 'bubble--other'"
+            >
+              <div class="bubble__meta">
+                {{ getSenderName(msg) }} • {{ msg.createdAt | date: 'HH:mm' }}
+              </div>
+              <div class="bubble__text">{{ msg.content }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat__composer">
+          <input
+            [ngModel]="messageText"
+            (ngModelChange)="messageTextChange.emit($event)"
+            (keydown.enter)="$event.preventDefault(); onSend()"
+            type="text"
+            placeholder="Type a message..."
+            class="input"
+            [disabled]="!isAcknowledged()"
+          />
+          <button
+            type="button"
+            (click)="onSend()"
+            class="btn btn--ghost"
+            [disabled]="!messageText.trim() || !isAcknowledged()"
+          >
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Right map with Leaflet integration -->
+  <aside class="case-detail__map" *ngIf="selectedCase">
+    <div class="card map-card">
+      <div class="card__header">
+        <div class="card__title">Live Location</div>
+        <div class="muted card__subtitle">Osijek, Croatia</div>
+      </div>
+
+      <div class="map-card__body">
+        <!-- Use Leaflet map instead of iframe -->
+        <div id="detail-map" class="map-frame leaflet-map"></div>
+
+        <div class="map-meta">
+          <div class="map-meta__row">
+            <span class="muted">Coordinates:</span>
+            <span class="map-meta__value">{{ formatCoordinate(selectedCase.latitude) }}, {{ formatCoordinate(selectedCase.longitude) }}</span>
+          </div>
+          <div class="map-meta__row">
+            <span class="muted">ETA to Hospital:</span>
+            <span class="map-meta__value map-meta__value--strong">{{ selectedCase.etaMinutes ?? '-' }} min</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+</main>

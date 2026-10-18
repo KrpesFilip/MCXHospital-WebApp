@@ -1,0 +1,220 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="closeModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <button class="close-btn" (click)="closeModal()">✕</button>
+    
+    <div class="modal-header">
+      <h2>{{ editMode ? 'Update Case' : 'Create New Case' }} - Step {{ currentStep }} of 3</h2>
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="(currentStep / 3) * 100"></div>
+      </div>
+    </div>
+
+    <div class="modal-body" *ngIf="currentStep === 1">
+      <div class="form-group">
+        <label>Patient Name</label>
+        <input 
+          type="text" 
+          [(ngModel)]="caseData.patientName"
+          placeholder="Enter patient name"
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Birth Year: {{ caseData.birthYear }} (Age: {{ calculateAge() }} years)</label>
+        <input 
+          type="range" 
+          min="1920" 
+          max="2025" 
+          [(ngModel)]="caseData.birthYear"
+          class="slider"
+        />
+        <div class="slider-labels">
+          <span>1920</span>
+          <span>1970</span>
+          <span>2025</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Sex</label>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input 
+              type="radio" 
+              name="sex" 
+              value="M" 
+              [(ngModel)]="caseData.sex"
+            />
+            <span>Male</span>
+          </label>
+          <label class="radio-option">
+            <input 
+              type="radio" 
+              name="sex" 
+              value="F" 
+              [(ngModel)]="caseData.sex"
+            />
+            <span>Female</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-body" *ngIf="currentStep === 2">
+      <div class="form-group">
+        <label>Symptoms / Patient Condition</label>
+        <textarea 
+          [(ngModel)]="caseData.symptoms"
+          placeholder="Describe the patient's condition, symptoms, and situation..."
+          class="form-textarea"
+          rows="5"
+        ></textarea>
+      </div>
+
+      <div class="quick-symptoms">
+        <button 
+          *ngFor="let symptom of quickSymptomOptions"
+          class="quick-symptom-btn"
+          [class.active]="isSymptomSelected(symptom)"
+          (click)="toggleQuickSymptom(symptom)"
+        >
+          {{ isSymptomSelected(symptom) ? '✓' : '+' }} {{ symptom }}
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-body vitals-step" *ngIf="currentStep === 3">
+      <div class="vital-group">
+        <label>Heart Rate</label>
+        <div class="vital-options">
+          <button 
+            *ngFor="let option of heartRateOptions"
+            class="vital-btn"
+            [class.active]="caseData.heartRateLabel === option.value"
+            [style.--indicator-color]="option.color"
+            (click)="selectHeartRate(option.value)"
+            type="button"
+          >
+            <div class="indicator" [style.background]="option.color"></div>
+            <div class="vital-label">{{ option.label }}</div>
+            <div class="vital-range">{{ option.range }}</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="vital-group">
+        <label>Blood Pressure: {{ caseData.systolicPressure }}/{{ caseData.diastolicPressure }} mmHg</label>
+        
+        <div class="bp-slider">
+          <label class="slider-label">Systolic (top number): {{ caseData.systolicPressure }} mmHg</label>
+          <input 
+            type="range" 
+            min="60" 
+            max="200"
+            step="10" 
+            [(ngModel)]="caseData.systolicPressure"
+            class="slider"
+          />
+        </div>
+
+        <div class="bp-slider">
+          <label class="slider-label">Diastolic (bottom number): {{ caseData.diastolicPressure }} mmHg</label>
+          <input 
+            type="range" 
+            min="40" 
+            max="130"
+            step="10" 
+            [(ngModel)]="caseData.diastolicPressure"
+            class="slider"
+          />
+        </div>
+      </div>
+
+      <div class="vital-group">
+        <label>Respiratory Rate</label>
+        <div class="vital-options">
+          <button 
+            *ngFor="let option of respiratoryRateOptions"
+            class="vital-btn"
+            [class.active]="caseData.respiratoryRateLabel === option.value"
+            [style.--indicator-color]="option.color"
+            (click)="selectRespiratoryRate(option.value)"
+            type="button"
+          >
+            <div class="indicator" [style.background]="option.color"></div>
+            <div class="vital-label">{{ option.label }}</div>
+            <div class="vital-range">{{ option.range }}</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="vital-group">
+        <label>Oxygen Saturation</label>
+        <div class="vital-options">
+          <button 
+            *ngFor="let option of oxygenSaturationOptions"
+            class="vital-btn"
+            [class.active]="caseData.oxygenSaturationLabel === option.value"
+            [style.--indicator-color]="option.color"
+            (click)="selectOxygenSaturation(option.value)"
+            type="button"
+          >
+            <div class="indicator" [style.background]="option.color"></div>
+            <div class="vital-label">{{ option.label }}</div>
+            <div class="vital-range">{{ option.range }}</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="vital-group">
+        <label>Temperature: {{ caseData.temperature }}°C</label>
+        <input 
+          type="range" 
+          min="35" 
+          max="42" 
+          step="1"
+          [(ngModel)]="caseData.temperature"
+          class="slider-temperature"
+        />
+        <div class="slider-labels">
+          <span>35°C</span>
+          <span>38.5°C</span>
+          <span>42°C</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button 
+        class="btn-back" 
+        *ngIf="currentStep > 1"
+        (click)="previousStep()"
+      >
+        ← Back
+      </button>
+      
+      <button 
+        class="btn-next" 
+        *ngIf="currentStep < 3"
+        (click)="nextStep()"
+        [disabled]="!canProceed()"
+      >
+        Next →
+      </button>
+
+      <button 
+        class="btn-create" 
+        *ngIf="currentStep === 3"
+        (click)="createCase()"
+        [disabled]="!canProceed() || isLoading"
+        [class.loading]="isLoading"
+      >
+        <span class="spinner" *ngIf="isLoading"></span>
+        <span [class.button-text-hidden]="isLoading">
+          {{ editMode ? 'Update Case' : 'Create Case' }}
+        </span>
+      </button>
+    </div>
+  </div>
+</div>

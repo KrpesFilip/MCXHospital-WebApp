@@ -1,0 +1,32 @@
+<div class="page">
+  <!-- Top Header -->
+  <app-header portalType="Hospital Portal" userRole="HOSPITAL"></app-header>
+
+  <!-- All cases overview -->
+  @if (!store.selectedCase()) {
+    <app-cases-overview 
+      [cases]="store.cases()" 
+      (select)="selectCase($event)"
+    ></app-cases-overview>
+  }
+
+  <!-- Case details -->
+  @if (store.selectedCase()) {
+    <app-case-detail 
+      [selectedCase]="store.selectedCase()!"
+      [allCases]="store.cases()"
+      [messageText]="messageText"
+      (messageTextChange)="messageText = $event"
+      (deselect)="deselect()"
+      (acknowledge)="acknowledge($event)"
+      (caseSelect)="selectCase($event)"
+    ></app-case-detail>
+  }
+  <div class="notifications-container">
+    <div class="notification-popup" *ngFor="let notification of notifications" (click)="openCase(notification)">
+      <strong>{{notification.senderName}}</strong>
+      <span>{{notification.message}}</span>
+    </div>
+  </div>
+
+</div>

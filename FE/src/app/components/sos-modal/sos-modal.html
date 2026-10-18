@@ -1,0 +1,119 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="closeModal()">
+  <div class="modal-container sos-modal" (click)="$event.stopPropagation()">
+    <button class="close-btn" (click)="closeModal()">✕</button>
+    
+    <div class="modal-header">
+      <div class="sos-header-badge">
+        <span class="sos-icon">⚠️</span>
+        <h2>{{ editMode ? 'UPDATE SOS EMERGENCY' : 'SOS EMERGENCY' }} - Step {{ currentStep }} of 2</h2>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill sos-progress" [style.width.%]="(currentStep / 2) * 100"></div>
+      </div>
+    </div>
+
+    <!-- STEP 1: Patient Info -->
+    <div class="modal-body" *ngIf="currentStep === 1">
+      <div class="form-group">
+        <label>Patient Name</label>
+        <input 
+          type="text" 
+          [(ngModel)]="caseData.patientName"
+          placeholder="Enter patient name"
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Birth Year: {{ caseData.birthYear }} (Age: {{ calculateAge() }} years)</label>
+        <input 
+          type="range" 
+          min="1920" 
+          max="2025" 
+          [(ngModel)]="caseData.birthYear"
+          class="slider"
+        />
+        <div class="slider-labels">
+          <span>1920</span>
+          <span>1970</span>
+          <span>2025</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Sex</label>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input 
+              type="radio" 
+              name="sex" 
+              value="M" 
+              [(ngModel)]="caseData.sex"
+            />
+            <span>Male</span>
+          </label>
+          <label class="radio-option">
+            <input 
+              type="radio" 
+              name="sex" 
+              value="F" 
+              [(ngModel)]="caseData.sex"
+            />
+            <span>Female</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Emergency Category -->
+    <div class="modal-body emergency-categories" *ngIf="currentStep === 2">
+      <p class="category-instruction">Select Emergency Category:</p>
+      
+      <div class="category-grid">
+        <button 
+          *ngFor="let category of emergencyCategories"
+          class="category-btn"
+          [class.selected]="caseData.category === category.value"
+          [style.--category-color]="category.color"
+          (click)="selectCategory(category.value)"
+          type="button"
+        >
+          <div class="category-icon">{{ category.icon }}</div>
+          <div class="category-label">{{ category.label }}</div>
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button 
+        class="btn-back" 
+        *ngIf="currentStep > 1"
+        (click)="previousStep()"
+      >
+        ← Back
+      </button>
+      
+      <button 
+        class="btn-next sos-btn" 
+        *ngIf="currentStep < 2"
+        (click)="nextStep()"
+        [disabled]="!canProceed()"
+      >
+        Next →
+      </button>
+
+      <button 
+        class="btn-create sos-create-btn" 
+        *ngIf="currentStep === 2"
+        (click)="createSosCase()"
+        [disabled]="!canProceed() || isLoading"
+        [class.loading]="isLoading"
+      >
+        <span class="spinner" *ngIf="isLoading"></span>
+        <span [class.button-text-hidden]="isLoading">
+          🚨 {{ editMode ? 'Update SOS Case' : 'Create SOS Case' }}
+        </span>
+      </button>
+    </div>
+  </div>
+</div>

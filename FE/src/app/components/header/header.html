@@ -1,0 +1,16 @@
+<header class="universal-header">
+  <div class="brand">
+    <h1 class="brand__title">MCX Hospital</h1>
+    <span class="brand__portal">{{ portalType }}</span>
+  </div>
+  
+  <div class="user-actions">
+    <div class="user-info">
+      <span class="user-name">{{ displayUsername }}</span>
+    </div>
+
+    <button class="btn-logout" (click)="logout()">
+      Logout
+    </button>
+  </div>
+</header>

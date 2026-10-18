@@ -1,0 +1,235 @@
+<!-- HEADER -->
+<div class="users-header">
+    <h3>Users ({{ filteredUsers.length }})</h3>
+    <button class="btn primary" (click)="openCreateUser()">
+        + Create New User
+    </button>
+</div>
+
+<!-- FILTERS -->
+<div class="filters-container">
+    <div class="search-input">
+        <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()"
+            placeholder="Search by username..."  autocomplete="off"/>
+    </div>
+    <div class="role-filter">
+        <select [(ngModel)]="selectedRole" (ngModelChange)="onRoleFilterChange()">
+            <option value="ALL">All Roles</option>
+            <option value="ADMIN">Admin</option>
+            <option value="HOSPITAL">Hospital Staff</option>
+            <option value="VEHICLE">Vehicle Personnel</option>
+        </select>
+    </div>
+</div>
+
+<!-- TABLE -->
+<table class="users-table">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Role</th>
+            <th>User ID</th>
+            <th>Created</th>
+            <th>Modified</th>
+            <th>Actions</th>
+            <th>
+                Status
+                <div class="status-hint">(click on status to change it)</div>
+            </th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr *ngFor="let user of filteredUsers">
+            <td>{{ user.username }}</td>
+            <td>
+                <span class="role-pill" [class.admin]="user.role === 'ADMIN'" [class.vehicle]="user.role === 'VEHICLE'"
+                    [class.hospital]="user.role === 'HOSPITAL'">
+                    {{ user.role }}
+                </span>
+            </td>
+            <td>{{ user.id }}</td>
+            <td>{{ user.createdAt ? (user.createdAt | date:'MMM d, y, HH:mm') : 'N/A' }}</td>
+            <td>{{ user.updatedAt ? (user.updatedAt | date:'MMM d, y, HH:mm') : '—' }}</td>
+            <td>
+                <button class="icon-btn" (click)="openEditUser(user)">Edit</button>
+               <!-- <button class="icon-btn danger" (click)="confirmDeleteUser(user)">Delete</button> -->
+            </td>
+            <td>
+                <button class="status-btn" [class.disabled]="user.isEnabled === false" [class.active]="user.isEnabled === true" [disabled]="user.isEnabled === undefined" (click)="confirmStatusChange(user)">
+                    {{ user.isEnabled === undefined ? '?' : (user.isEnabled ? 'ACTIVE' : 'DISABLED') }}
+                </button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- CONFIRM STATUS CHANGE MODAL -->
+<div *ngIf="showConfirmStatusModal && pendingStatusUser" class="overlay" (click)="cancelStatusChange()">
+    <div class="modal" (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+            <h2>Confirm Status Change</h2>
+            <button class="close-btn" (click)="cancelStatusChange()">✕</button>
+        </div>
+
+        <div class="modal-body">
+            <p>Are you sure you want to change <strong>{{ pendingStatusUser.username }}</strong> status?</p>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn cancel" (click)="cancelStatusChange()" [disabled]="isStatusChanging">Cancel</button>
+            <button class="btn primary" (click)="performStatusChange()" [disabled]="isStatusChanging">
+                {{ isStatusChanging ? 'Confirming...' : 'Confirm' }}
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- CREATE USER MODAL -->
+<div *ngIf="showCreateModal" class="overlay" (click)="closeModals()">
+    <div class="modal" (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+            <h2>Create New User</h2>
+            <button class="close-btn" (click)="closeModals()">✕</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Username</label>
+                <input [(ngModel)]="newUser.username" type="text" />
+                <div *ngIf="usernameError" class="error-message">{{ usernameError }}</div>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <div class="password-input-wrapper">
+                    <input [(ngModel)]="newUser.password" [type]="showPassword ? 'text' : 'password'" />
+                    <button type="button" class="toggle-password" (click)="showPassword = !showPassword">
+                        {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+                    </button>
+                </div>
+                <div class="password-requirements">
+                    <small>Password must be at least 8 characters with:</small>
+                    <small>• At least one capital letter</small>
+                    <small>• At least one number</small>
+                    <small>• At least one special character</small>
+                </div>
+                <div *ngIf="passwordError" class="error-message">{{ passwordError }}</div>
+            </div>
+
+            <div class="form-group">
+                <label>Role</label>
+                <div class="role-select">
+                    <button class="role" [class.active]="newUser.role === 'VEHICLE'" (click)="newUser.role = 'VEHICLE'">
+                        Vehicle Personnel
+                    </button>
+                    <button class="role" [class.active]="newUser.role === 'HOSPITAL'"
+                        (click)="newUser.role = 'HOSPITAL'">
+                        Hospital Staff
+                    </button>
+                    <button class="role" [class.active]="newUser.role === 'ADMIN'" (click)="newUser.role = 'ADMIN'">
+                        Admin
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn cancel" (click)="closeModals()">Cancel</button>
+            <button class="btn primary" [disabled]="!newUser.username || !newUser.password" (click)="createUser()">
+                Create User
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- EDIT USER MODAL -->
+<div *ngIf="showEditModal && editedUser" class="overlay" (click)="closeModals()">
+    <div class="modal" (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+            <h2>Edit User</h2>
+            <button class="close-btn" (click)="closeModals()">✕</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Username</label>
+                <input [(ngModel)]="editedUser!.username" type="text" />
+                <div *ngIf="editUsernameError" class="error-message">{{ editUsernameError }}</div>
+            </div>
+
+            <div class="form-group">
+                <label>Password (leave empty to keep current)</label>
+                <div class="password-input-wrapper">
+                    <input [(ngModel)]="editedPassword" [type]="showEditPassword ? 'text' : 'password'" />
+                    <button type="button" class="toggle-password" (click)="showEditPassword = !showEditPassword">
+                        {{ showEditPassword ? '👁️' : '👁️‍🗨️' }}
+                    </button>
+                </div>
+                <div class="password-requirements" *ngIf="editedPassword">
+                    <small>Password must be at least 8 characters with:</small>
+                    <small>• At least one capital letter</small>
+                    <small>• At least one number</small>
+                    <small>• At least one special character</small>
+                </div>
+                <div *ngIf="editPasswordError" class="error-message">{{ editPasswordError }}</div>
+            </div>
+
+            <div class="form-group">
+                <label>Role</label>
+                <div class="role-select">
+                    <button class="role" [class.active]="editedUser!.role === 'VEHICLE'"
+                        (click)="editedUser!.role = 'VEHICLE'">
+                        EMS Personnel
+                    </button>
+                    <button class="role" [class.active]="editedUser!.role === 'HOSPITAL'"
+                        (click)="editedUser!.role = 'HOSPITAL'">
+                        Hospital Staff
+                    </button>
+                    <button class="role" [class.active]="editedUser!.role === 'ADMIN'"
+                        (click)="editedUser!.role = 'ADMIN'">
+                        Admin
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn cancel" (click)="closeModals()">Cancel</button>
+            <button class="btn primary" [disabled]="!editedUser || !editedUser.username" (click)="saveUserChanges()">
+                Save Changes
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- DELETE CONFIRMATION MODAL
+<div *ngIf="showDeleteModal && userToDelete" class="overlay" (click)="closeModals()">
+    <div class="modal" (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+            <h2>Confirm Delete</h2>
+            <button class="close-btn" (click)="closeModals()">✕</button>
+        </div>
+
+        <div class="modal-body">
+            <p>You are about to delete user <strong>{{ userToDelete.username }}</strong> ({{ userToDelete.role }}).</p>
+            <p>This action cannot be undone. Are you sure you want to proceed?</p>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn cancel" (click)="closeModals()">Cancel</button>
+            <button class="btn danger" (click)="deleteUser()">
+                Delete User
+            </button>
+        </div>
+
+    </div>
+</div>
+-->

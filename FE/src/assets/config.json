@@ -1,0 +1,13 @@
+{
+  "Urls": {
+    "apiUrl": "http://localhost:8080",
+    "wsUrl": "ws://localhost:8080/ws/cases",
+    "sendMsgUrl": "ws://localhost:8080/chat",
+    "getMsgUrl": "http://localhost:8080/messages/case",
+    "hospitalNotificationsUrl": "ws://localhost:8080/hospital/notifications"
+  },
+  "MapSettings": {
+    "HOSPITAL_LAT": 45.558125,
+    "HOSPITAL_LNG": 18.713756
+  }
+}
